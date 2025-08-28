@@ -125,7 +125,7 @@ const EventDetailScreen = ({ id }) => {
           events: firestore.FieldValue.arrayRemove(event.id),
         });
         setIsInterested(false);
-        showCustomPopup('success', 'Removed', 'Interest removed successfully!');
+        showCustomPopup('success', 'Removed', 'Interest removed successfully.');
       } else {
         await firestore().collection('events').doc(event.id).update({
           Applicants: firestore.FieldValue.arrayUnion({
@@ -139,7 +139,7 @@ const EventDetailScreen = ({ id }) => {
           events: firestore.FieldValue.arrayUnion(event.id),
         });
         setIsInterested(true);
-        showCustomPopup('success', 'Success!', 'Interest expressed successfully!');
+        showCustomPopup('success', 'Success!', 'Interest expressed successfully');
       }
     } catch (err) {
       showCustomPopup('error', 'Error', 'Failed to update interest.');

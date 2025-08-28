@@ -120,7 +120,7 @@ const Liked = () => {
         }
       >
         <Text style={[styles.articleText, { color: theme.text }]} numberOfLines={3}>
-          {item.summary || item.title || item.title}
+          {item.title}
         </Text>
       </TouchableOpacity>
     </View>
