@@ -14,6 +14,20 @@ export async function requestUserPermission() {
     } else {
       console.log('❌ Notification permission denied (Android 13+).');
     }
+  } else if (Platform.OS === 'ios') {
+    // Add iOS-specific permission request
+    const authStatus = await messaging().requestPermission({
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    });
+    const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+                   authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    if (enabled) console.log('✅ iOS notification permission granted.');
   } else {
     const authStatus = await messaging().requestPermission();
     const enabled =
@@ -40,13 +54,15 @@ export async function getFcmToken() {
 
 // ✅ Listen for notifications
 export function notificationListener() {
-  // Create notification channel for Android
-  notifee.createChannel({
-    id: 'default',
-    name: 'Default Channel',
-    sound: 'default',
-    importance: AndroidImportance.HIGH,
-  });
+  // Create notification channel for Android only
+  if (Platform.OS === 'android') {
+    notifee.createChannel({
+      id: 'default',
+      name: 'Default Channel',
+      sound: 'default',
+      importance: AndroidImportance.HIGH,
+    });
+  }
 
   // Foreground messages (show notification, don't navigate instantly)
   const unsubscribeOnMessage = messaging().onMessage(async remoteMessage => {
