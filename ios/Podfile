@@ -5,10 +5,12 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
-platform :ios, min_ios_version_supported
+# Set minimum iOS version to match your simulator (iOS 18.5)
+# We'll use iOS 16.0 as minimum for better compatibility
+platform :ios, '16.0'
 prepare_react_native_project!
 
-# Fix for M1 Mac compatibility
+# Fix for M2/M3 Mac compatibility
 def common_pods
   # Add any common pods here if needed
 end
@@ -39,15 +41,26 @@ target 'CoinDesi' do
       # :ccache_enabled => true
     )
     
-    # Fix for Xcode 15+ compatibility
+    # Fix for Xcode 15+ and iOS 18.5 compatibility
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
-        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+        # Set deployment target to iOS 16.0 for better compatibility
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
         
-        # Modern macOS versions handle arm64 better, so we'll be more selective
-        # Only exclude arm64 for specific problematic targets if needed
+        # M2/M3 Mac optimization - no need to exclude arm64 for modern targets
+        # Only exclude for very specific problematic targets
         if target.name.include?('Flipper') || target.name.include?('RCT-Folly')
-          config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+          # For iOS 18.5 simulator, we might need to handle this differently
+          if config.build_settings['SDKROOT'] == 'iphonesimulator'
+            # Only exclude arm64 for problematic targets on simulator
+            config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+          end
+        end
+        
+        # Enable arm64 for iOS simulator on M2/M3 Macs
+        if config.build_settings['SDKROOT'] == 'iphonesimulator'
+          config.build_settings['ONLY_ACTIVE_ARCH'] = 'NO'
+          config.build_settings['VALID_ARCHS'] = 'arm64 x86_64'
         end
       end
     end
@@ -55,7 +68,7 @@ target 'CoinDesi' do
     # Fix for modern macOS compatibility
     installer.pods_project.build_configurations.each do |config|
       # Set deployment target for the project
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
     end
   end
 end

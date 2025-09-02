@@ -2,19 +2,32 @@
 
 ## 🚀 Quick Start (Recommended)
 
-For the easiest setup, simply run:
+### For M2/M3 Macs (Recommended)
+```bash
+chmod +x setup-m2-mac.sh
+./setup-m2-mac.sh
+```
 
+### For All Macs
 ```bash
 chmod +x setup-macos.sh
 ./setup-macos.sh
 ```
 
-This script will automatically:
+These scripts will automatically:
 - Install all required tools (Homebrew, Node.js, Watchman, CocoaPods)
 - Set up Xcode properly
 - Install project dependencies
 - Configure iOS pods
 - Make all scripts executable
+- **M2 Mac specific**: Optimize for ARM64 architecture and iOS 18.5
+
+## 📱 iOS 18.5 Compatibility
+
+**Important**: This project is now configured for:
+- **Minimum iOS**: 16.0
+- **Target iOS**: 18.5 (iPhone 16 Pro simulator)
+- **Architecture**: ARM64 (M2 Mac optimized)
 
 ## Prerequisites
 
@@ -69,8 +82,15 @@ npx react-native run-ios
 
 ## Available Scripts
 
+### 🍎 `setup-m2-mac.sh` - M2 Mac Optimized Setup
+- **Use this for M2/M3 Macs** with iOS 18.5 simulator
+- Installs all required tools automatically
+- Optimizes for ARM64 architecture
+- Verifies iOS 18.5 compatibility
+- **Recommended for your setup!**
+
 ### 🍎 `setup-macos.sh` - Complete Setup
-- **Use this first time** or when setting up on a new Mac
+- **Use this for all Macs** or when setting up on a new Mac
 - Installs all required tools automatically
 - Sets up the entire development environment
 
@@ -113,7 +133,7 @@ npm run ios
 
 ### Issue 3: Simulator Issues
 - Open Xcode → Window → Devices and Simulators
-- Create a new simulator if needed
+- Create iPhone 16 Pro simulator with iOS 18.5
 - Reset simulator: Device → Erase All Content and Settings
 
 ### Issue 4: Metro Bundler Issues
@@ -147,6 +167,9 @@ xcodebuild -version
 
 # Check Homebrew
 brew --version
+
+# Check macOS architecture
+uname -m
 ```
 
 ### Manual Cleanup (if scripts don't work)
@@ -163,16 +186,25 @@ npm install
 cd ios && pod install && cd ..
 ```
 
-## M1 Mac Specific Notes
+## M2 Mac Specific Notes
 
-- The setup script automatically detects M1 Macs and configures Homebrew properly
-- The Podfile has been updated for modern macOS compatibility
-- Arm64 architecture issues are handled automatically
-- Use Rosetta Terminal only if you encounter Intel-specific issues
+- **Use `setup-m2-mac.sh`** for optimal M2 Mac performance
+- **ARM64 architecture** is fully supported and optimized
+- **iOS 18.5 simulator** compatibility is verified
+- **Homebrew is configured** for `/opt/homebrew` path
+- **No Rosetta needed** - native ARM64 performance
+
+## iOS 18.5 Simulator Setup
+
+1. **Open Xcode**
+2. **Go to Window → Devices and Simulators**
+3. **Click the "+" button** to add a new simulator
+4. **Choose iPhone 16 Pro** with iOS 18.5
+5. **Verify the simulator** appears in the list
 
 ## Still Having Issues?
 
-1. **Run the setup script first**: `./setup-macos.sh`
+1. **Run the M2 Mac setup script first**: `./setup-m2-mac.sh`
 2. **Check the React Native troubleshooting guide**: https://reactnative.dev/docs/troubleshooting
 3. **Ensure you're using the latest stable versions** of all tools
 4. **Try running on a physical device** instead of simulator
@@ -184,6 +216,7 @@ cd ios && pod install && cd ..
 If you get permission errors, make sure scripts are executable:
 
 ```bash
+chmod +x setup-m2-mac.sh
 chmod +x setup-macos.sh
 chmod +x quick-fix-mac.sh
 chmod +x cleanup-mac.sh
