@@ -10,6 +10,9 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, '16.0'
 prepare_react_native_project!
 
+# Fix for Firebase Swift pods integration
+use_modular_headers!
+
 # Fix for M2/M3 Mac compatibility
 def common_pods
   # Add any common pods here if needed
@@ -61,6 +64,12 @@ target 'CoinDesi' do
         if config.build_settings['SDKROOT'] == 'iphonesimulator'
           config.build_settings['ONLY_ACTIVE_ARCH'] = 'NO'
           config.build_settings['VALID_ARCHS'] = 'arm64 x86_64'
+        end
+        
+        # Fix for Firebase Swift pods
+        if target.name.include?('Firebase') || target.name.include?('Google')
+          config.build_settings['CLANG_ENABLE_MODULES'] = 'YES'
+          config.build_settings['SWIFT_VERSION'] = '5.0'
         end
       end
     end
