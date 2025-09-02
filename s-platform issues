@@ -1,0 +1,118 @@
+[1mdiff --git a/ios/CoinDesi/Info.plist b/ios/CoinDesi/Info.plist[m
+[1mindex c84bba6..12396f3 100644[m
+[1m--- a/ios/CoinDesi/Info.plist[m
+[1m+++ b/ios/CoinDesi/Info.plist[m
+[36m@@ -33,7 +33,38 @@[m
+ 		<true/>[m
+ 	</dict>[m
+ 	<key>NSLocationWhenInUseUsageDescription</key>[m
+[31m-	<string></string>[m
+[32m+[m	[32m<string>This app needs access to location to show nearby events and services.</string>[m
+[32m+[m
+[32m+[m	[32m<!-- Add these new keys for iOS compatibility -->[m
+[32m+[m	[32m<key>NSCameraUsageDescription</key>[m
+[32m+[m	[32m<string>This app needs access to camera to take profile pictures and scan QR codes.</string>[m
+[32m+[m
+[32m+[m	[32m<key>NSPhotoLibraryUsageDescription</key>[m
+[32m+[m	[32m<string>This app needs access to photo library to select profile pictures.</string>[m
+[32m+[m
+[32m+[m	[32m<key>NSMicrophoneUsageDescription</key>[m
+[32m+[m	[32m<string>This app needs access to microphone for voice features.</string>[m
+[32m+[m
+[32m+[m	[32m<key>NSUserNotificationsUsageDescription</key>[m
+[32m+[m	[32m<string>This app needs to send you notifications about important updates and events.</string>[m
+[32m+[m
+[32m+[m	[32m<!-- Firebase configuration -->[m
+[32m+[m	[32m<key>FirebaseAppDelegateProxyEnabled</key>[m
+[32m+[m	[32m<false/>[m
+[32m+[m
+[32m+[m	[32m<!-- Google Sign-In configuration -->[m
+[32m+[m	[32m<key>CFBundleURLTypes</key>[m
+[32m+[m	[32m<array>[m
+[32m+[m		[32m<dict>[m
+[32m+[m			[32m<key>CFBundleURLName</key>[m
+[32m+[m			[32m<string>google</string>[m
+[32m+[m			[32m<key>CFBundleURLSchemes</key>[m
+[32m+[m			[32m<array>[m
+[32m+[m				[32m<string>com.googleusercontent.apps.YOUR_GOOGLE_CLIENT_ID</string>[m
+[32m+[m			[32m</array>[m
+[32m+[m		[32m</dict>[m
+[32m+[m	[32m</array>[m
+[32m+[m
+ 	<key>UILaunchStoryboardName</key>[m
+ 	<string>LaunchScreen</string>[m
+ 	<key>UIRequiredDeviceCapabilities</key>[m
+[36m@@ -48,5 +79,25 @@[m
+ 	</array>[m
+ 	<key>UIViewControllerBasedStatusBarAppearance</key>[m
+ 	<false/>[m
+[32m+[m
+[32m+[m	[32m<!-- Vector Icons Fonts -->[m
+[32m+[m	[32m<key>UIAppFonts</key>[m
+[32m+[m	[32m<array>[m
+[32m+[m		[32m<string>AntDesign.ttf</string>[m
+[32m+[m		[32m<string>Entypo.ttf</string>[m
+[32m+[m		[32m<string>EvilIcons.ttf</string>[m
+[32m+[m		[32m<string>Feather.ttf</string>[m
+[32m+[m		[32m<string>FontAwesome.ttf</string>[m
+[32m+[m		[32m<string>FontAwesome5_Brands.ttf</string>[m
+[32m+[m		[32m<string>FontAwesome5_Regular.ttf</string>[m
+[32m+[m		[32m<string>FontAwesome5_Solid.ttf</string>[m
+[32m+[m		[32m<string>Foundation.ttf</string>[m
+[32m+[m		[32m<string>Ionicons.ttf</string>[m
+[32m+[m		[32m<string>MaterialIcons.ttf</string>[m
+[32m+[m		[32m<string>MaterialCommunityIcons.ttf</string>[m
+[32m+[m		[32m<string>SimpleLineIcons.ttf</string>[m
+[32m+[m		[32m<string>Octicons.ttf</string>[m
+[32m+[m		[32m<string>Zocial.ttf</string>[m
+[32m+[m	[32m</array>[m
+ </dict>[m
+ </plist>[m
+[1mdiff --git a/src/services/firebase.js b/src/services/firebase.js[m
+[1mindex 431ee41..3921664 100644[m
+[1m--- a/src/services/firebase.js[m
+[1m+++ b/src/services/firebase.js[m
+[36m@@ -14,6 +14,20 @@[m [mexport async function requestUserPermission() {[m
+     } else {[m
+       console.log('❌ Notification permission denied (Android 13+).');[m
+     }[m
+[32m+[m[32m  } else if (Platform.OS === 'ios') {[m
+[32m+[m[32m    // Add iOS-specific permission request[m
+[32m+[m[32m    const authStatus = await messaging().requestPermission({[m
+[32m+[m[32m      alert: true,[m
+[32m+[m[32m      announcement: false,[m
+[32m+[m[32m      badge: true,[m
+[32m+[m[32m      carPlay: false,[m
+[32m+[m[32m      criticalAlert: false,[m
+[32m+[m[32m      provisional: false,[m
+[32m+[m[32m      sound: true,[m
+[32m+[m[32m    });[m
+[32m+[m[32m    const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED ||[m
+[32m+[m[32m                   authStatus === messaging.AuthorizationStatus.PROVISIONAL;[m
+[32m+[m[32m    if (enabled) console.log('✅ iOS notification permission granted.');[m
+   } else {[m
+     const authStatus = await messaging().requestPermission();[m
+     const enabled =[m
+[36m@@ -40,13 +54,15 @@[m [mexport async function getFcmToken() {[m
+ [m
+ // ✅ Listen for notifications[m
+ export function notificationListener() {[m
+[31m-  // Create notification channel for Android[m
+[31m-  notifee.createChannel({[m
+[31m-    id: 'default',[m
+[31m-    name: 'Default Channel',[m
+[31m-    sound: 'default',[m
+[31m-    importance: AndroidImportance.HIGH,[m
+[31m-  });[m
+[32m+[m[32m  // Create notification channel for Android only[m
+[32m+[m[32m  if (Platform.OS === 'android') {[m
+[32m+[m[32m    notifee.createChannel({[m
+[32m+[m[32m      id: 'default',[m
+[32m+[m[32m      name: 'Default Channel',[m
+[32m+[m[32m      sound: 'default',[m
+[32m+[m[32m      importance: AndroidImportance.HIGH,[m
+[32m+[m[32m    });[m
+[32m+[m[32m  }[m
+ [m
+   // Foreground messages (show notification, don't navigate instantly)[m
+   const unsubscribeOnMessage = messaging().onMessage(async remoteMessage => {[m
