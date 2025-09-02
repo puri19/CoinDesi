@@ -13,41 +13,62 @@ echo "📱 Checking environment..."
 # Check Node.js
 if ! command -v node &> /dev/null; then
     echo "❌ Node.js not found. Please install Node.js first."
+    echo "   You can install it from: https://nodejs.org/"
     exit 1
+fi
+
+# Check if Homebrew is available
+if ! command -v brew &> /dev/null; then
+    echo "⚠️  Homebrew not found. Some tools might not be available."
+    echo "   Install Homebrew: /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
 fi
 
 # Check CocoaPods
 if ! command -v pod &> /dev/null; then
     echo "❌ CocoaPods not found. Installing..."
-    sudo gem install cocoapods -n /usr/local/bin
+    if command -v brew &> /dev/null; then
+        brew install cocoapods
+    else
+        sudo gem install cocoapods -n /usr/local/bin
+    fi
 fi
 
 # Check Watchman
 if ! command -v watchman &> /dev/null; then
     echo "❌ Watchman not found. Installing..."
-    brew install watchman
+    if command -v brew &> /dev/null; then
+        brew install watchman
+    else
+        echo "⚠️  Please install Watchman manually: brew install watchman"
+    fi
 fi
 
 echo "🧹 Quick cleanup..."
 
 # Quick cleanup without removing everything
-cd ios
-if [ -d "Pods" ]; then
-    echo "Removing old Pods..."
-    rm -rf Pods
-    rm -rf Podfile.lock
-fi
+if [ -d "ios" ]; then
+    cd ios
+    if [ -d "Pods" ]; then
+        echo "Removing old Pods..."
+        rm -rf Pods
+        rm -rf Podfile.lock
+    fi
 
-if [ -d "build" ]; then
-    echo "Removing old build..."
-    rm -rf build
+    if [ -d "build" ]; then
+        echo "Removing old build..."
+        rm -rf build
+    fi
+    cd ..
 fi
-cd ..
 
 echo "📦 Installing pods..."
-cd ios
-pod install --repo-update
-cd ..
+if [ -d "ios" ]; then
+    cd ios
+    pod install --repo-update
+    cd ..
+else
+    echo "⚠️  iOS directory not found. Skipping pod install."
+fi
 
 echo "✅ Quick fix complete!"
 echo ""

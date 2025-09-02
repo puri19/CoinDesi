@@ -44,14 +44,18 @@ target 'CoinDesi' do
       target.build_configurations.each do |config|
         config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
         
-        # Fix for arm64 simulator issues on M1 Mac
-        config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+        # Modern macOS versions handle arm64 better, so we'll be more selective
+        # Only exclude arm64 for specific problematic targets if needed
+        if target.name.include?('Flipper') || target.name.include?('RCT-Folly')
+          config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+        end
       end
     end
     
-    # Fix for M1 Mac compatibility
+    # Fix for modern macOS compatibility
     installer.pods_project.build_configurations.each do |config|
-      config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+      # Set deployment target for the project
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
     end
   end
 end
